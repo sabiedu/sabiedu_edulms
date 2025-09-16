@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+
+  # FastAPI Backend - Connects to TiDB Serverless with Vector Search
+  backend:
+    build:
+      context: ./backend_fastapi
+      dockerfile: Dockerfile
+    container_name: edulms-fastapi
+    environment:
+      # TiDB Serverless connection
+      TIDB_HOST: ${TIDB_HOST}
+      TIDB_PORT: ${TIDB_PORT:-4000}
+      TIDB_USER: ${TIDB_USER}
+      TIDB_PASSWORD: ${TIDB_PASSWORD}
+      TIDB_DATABASE: ${TIDB_DATABASE}
+      TIDB_SSL: true
+      # JWT Configuration
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: HS256
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      # Google Gemini API
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      # Application Settings
+      PORT: 8000
+      DEBUG: true
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend_fastapi:/app
+    networks:
+      - edulms-network
+    restart: unless-stopped
+
+  # Nuxt 3 Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: edulms-frontend
+    environment:
+      NUXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - edulms-network
+    restart: unless-stopped
+
+volumes:
+  frontend_node_modules:
+
+networks:
+  edulms-network:
+    driver: bridge
