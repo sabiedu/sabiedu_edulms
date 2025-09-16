@@ -19,11 +19,11 @@ load_dotenv()
 Base = declarative_base()
 
 # Database configuration - Direct values for TiDB Serverless
-TIDB_HOST = "gateway01.eu-central-1.prod.aws.tidbcloud.com"
-TIDB_PORT = 4000
-TIDB_USER = "2yEVSjNkcg15Ek5.root"  # Includes the required prefix
-TIDB_PASSWORD = "eudXKzFFDjHH9oGz"
-TIDB_DATABASE = "edulms_v2"
+TIDB_HOST = os.getenv("TIDB_HOST")  
+TIDB_PORT = os.getenv("TIDB_PORT")
+TIDB_USER = os.getenv("TIDB_USER")
+TIDB_PASSWORD = os.getenv("TIDB_PASSWORD")
+TIDB_DATABASE = os.getenv("TIDB_DATABASE")
 
 # Extract prefix from username if it contains a dot
 if "." in TIDB_USER:
